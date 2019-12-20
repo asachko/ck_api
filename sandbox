@@ -1,0 +1,33 @@
+curl -X POST "localhost:4578/deploys/_doc/?pretty" -H 'Content-Type: application/json' -d'
+{
+  "gitHash": "1234567"
+}
+'
+
+curl -X POST "localhost:4571/deploys/_doc/?pretty" -H 'Content-Type: application/json' -d'
+{
+  "gitHash": "1234567"
+}
+'
+
+curl -X POST "localhost:9200/deploys/_doc/?pretty" -H 'Content-Type: application/json' -d'
+{
+  "gitHash": "1234567"
+}
+'
+
+
+sed -i "/^ad_domain /s/$/\nad_hostname = $(hostname).$domain/" /etc/sssd/sssd.conf
+( echo; echo 'ldap_group_nesting_level = 5'; echo 'ldap_use_tokengroups = false' ) >>/etc/sssd/sssd.conf
+service sssd restart
+
+ldapsearch -D "cn=Administrator" -w secret -p 389 -h 10.0.1.195 -b "dc=cortex.knowledge,dc=com" -s sub "(objectclass=*)"
+
+ldapsearch -p 389 -h 10.0.1.195 -b "dc=cortex.knowledge,dc=com" -s sub "(objectclass=*)"
+
+
+ldapsearch -x \
+    -h 10.0.1.195 \
+    -b "cn=Users,dc=cortex,dc=knowledge,dc=com" \
+    –D "cortex\\Administrator" \
+    -W sAMAccountName=Administrator

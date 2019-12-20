@@ -1,0 +1,27 @@
+version: 0.2
+
+
+phases:
+  install:
+    runtime-versions:      
+      docker: 18
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+  build:
+    commands:      
+      - echo "starting build..."
+      # Build a fat jar of our code using SBT
+      - docker build -f nuxeo_image/Dockerfile -t nuxeo_stage .
+      - docker image list
+#      - cd target/docker/stage
+#      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG ./target/docker/stage/Dockerfile
+#      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker tag nuxeo_stage:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/nuxeo_stage:latest
+      - docker image list
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/nuxeo_stage:latest
